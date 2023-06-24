@@ -171,6 +171,22 @@ async def check(id: int, password: str):
         return {"message": "An error occurred while finding the editor", "error": str(e)}
 
 
+# Getting the name of subjects
+@app.get("/getsubjects")
+async def getsubjects():
+    try:
+        unique_sub_values = collection.distinct("sub")
+        return {"unique_sub_values": unique_sub_values}
+    except Exception as e:
+        return {"message": "An error occurred while finding the subjects", "error": str(e)}
+
+# Checking connection
+
+
+@app.get("/")
+async def root():
+    return {"message": "Everything is working"}
+
 # Starting the server
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=3000)
