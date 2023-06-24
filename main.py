@@ -4,8 +4,19 @@ from bson import ObjectId
 from pymongo import MongoClient
 import uvicorn
 import json
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 client = MongoClient("mongodb://localhost:27017")
 db = client['iiiteverything']
@@ -114,7 +125,7 @@ async def addeditor(id: int, password: str, name: str, adder: int):
 @app.post("/addadmin")
 async def addadmin(id: int, password: str, name: str, masterpass: str):
     try:
-        if(masterpass == "Swoyam@121065"):
+        if (masterpass == "Swoyam@121065"):
             admin_info = {
                 "name": name,
                 "studentid": id,
