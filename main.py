@@ -3,7 +3,6 @@ import os
 from bson import ObjectId
 from pymongo import MongoClient
 import uvicorn
-import json
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
