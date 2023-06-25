@@ -1,3 +1,4 @@
+from bson import ObjectId, encode
 from fastapi import FastAPI, File, UploadFile, Response
 import os
 from bson import ObjectId
@@ -5,6 +6,23 @@ from pymongo import MongoClient
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
+from pydantic import BaseModel
+from bson import ObjectId, encode
+
+
+class Editor(BaseModel):
+    name: str
+    studentid: int
+    password: str
+    adder: int
+
+
+class Admin(BaseModel):
+    name: str
+    studentid: int
+    password: str
+    adder: int
+
 
 app = FastAPI()
 
@@ -98,7 +116,7 @@ async def find(sub: str = "", docType: str = ""):
     if sub:
         query['sub'] = sub
     if docType:
-        query['docType'] = docType
+        query['documentType'] = docType
     entries = collection.find(query)
     results = []
     for entry in entries:
@@ -109,37 +127,43 @@ async def find(sub: str = "", docType: str = ""):
 
 # authenticate the editor
 @app.post("/addeditor")
-async def addeditor(id: int, password: str, name: str, adder: int):
+async def addeditor(usr: Editor, adder: int):
     try:
-        editor_info = {
-            "name": name,
-            "studentid": id,
-            "password": password,
-            "adder": adder
-        }
-        result = editors.insert_one(editor_info)
-        return {"added": str(result.__inserted_id)}
+        editor_info = Editor(
+            name=usr.name,
+            studentid=usr.studentid,
+            password=usr.password,
+            adder=usr.adder
+        )
+
+        editor_info_dict = editor_info.dict(by_alias=True)
+        result = editors.insert_one(editor_info_dict)
+        return {"added": str(result.inserted_id)}
     except Exception as e:
         return {"message": "An error occurred while adding the editor", "error": str(e)}
 
 
 # authenticate the admin
 @app.post("/addadmin")
-async def addadmin(id: int, password: str, name: str, masterpass: str):
+async def addadmin(usr: Admin, masterpass: str):
     try:
-        if (masterpass == "Swoyam@121065"):
-            admin_info = {
-                "name": name,
-                "studentid": id,
-                "password": password,
-                "adder": 121065
-            }
-            result = admin.insert_one(admin_info)
-            return {"added": str(result.__inserted_id)}
+        if masterpass == "Swoyam@121065":
+            admin_info = Admin(
+                name=usr.name,
+                studentid=usr.studentid,
+                password=usr.password,
+                adder=usr.adder
+            )
+
+            admin_info_dict = admin_info.dict(by_alias=True)
+            result = admin.insert_one(admin_info_dict)
+            result2 = editors.insert_one(admin_info_dict)
+            return {"added": str(result.inserted_id),
+                    "addedEditor": str(result2.inserted_id)}
         else:
-            return {"Wrong master pass"}
+            return {"message": "Wrong master pass"}
     except Exception as e:
-        return {"message": "An error occurred while adding the editor", "error": str(e)}
+        return {"message": "An error occurred while adding the admin", "error": str(e)}
 
 
 # checking the editor
