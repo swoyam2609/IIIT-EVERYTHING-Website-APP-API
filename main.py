@@ -170,11 +170,12 @@ async def addadmin(usr: Admin, masterpass: str):
 @app.get("/checkeditor")
 async def check(id: int, password: str):
     try:
-        query = {}
-        query['studentid'] = id
-        query['password'] = password
-        found = editors.find(query)
-        if found > 0:
+        query = {
+            'studentid': id,
+            'password': password
+        }
+        found_count = editors.count_documents(query)
+        if found_count > 0:
             return True
         else:
             return False
@@ -186,16 +187,17 @@ async def check(id: int, password: str):
 @app.get("/checkadmin")
 async def check(id: int, password: str):
     try:
-        query = {}
-        query['studentid'] = id
-        query['password'] = password
-        found = admin.find(query)
-        if found > 0:
+        query = {
+            'studentid': id,
+            'password': password
+        }
+        found_count = admin.count_documents(query)
+        if found_count > 0:
             return True
         else:
             return False
     except Exception as e:
-        return {"message": "An error occurred while finding the editor", "error": str(e)}
+        return {"message": "An error occurred while finding the admin", "error": str(e)}
 
 
 # Getting the name of subjects

@@ -11,6 +11,62 @@ function Adminportal() {
     const [masterPassword, setMasterPassword] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [responseMessage, setResponseMessage] = useState("");
+    const [isEditorModalOpen, setIsEditorModalOpen] = useState(false); // Added state for editor modal
+    const [adminId, setAdminId] = useState(""); // Added state for admin ID
+    const [adminPass, setAdminPass] = useState("");
+    const [editorId, setEditorId] = useState(""); // Added state for editor ID
+    const [editorPass, setEditorPass] = useState("");
+    const [editorName, setEditorName] = useState("");
+
+    const handleAddEditor = () => {
+        setIsEditorModalOpen(true);
+    };
+
+    const handleEditorModalClose = () => {
+        setIsEditorModalOpen(false);
+    };
+
+    const handleEditorSubmit = async () => {
+        try {
+            const checkResponse = await axios.get(
+                "http://127.0.0.1:3000/checkadmin",
+                {
+                    params: {
+                        id: adminId,
+                        password: adminPass,
+                    },
+                }
+            );
+
+            if (checkResponse.data === true) {
+                const payload = {
+                    name: editorName,
+                    studentid: parseInt(editorId),
+                    password: editorPass,
+                    adder: adminId,
+                };
+
+                const response = await axios.post(
+                    "http://127.0.0.1:3000/addeditor",
+                    payload,
+                    {
+                        params: {
+                            adder: adminId,
+                        },
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                setResponseMessage("User Added Successfully");
+            } else {
+                setResponseMessage("Invalid Admin ID or Password");
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const handleFileUpload = (event) => {
         const uploadedFile = event.target.files[0];
@@ -43,6 +99,26 @@ function Adminportal() {
         setMasterPassword(event.target.value);
     };
 
+    const handleEditorIdChange = (event) => {
+        setEditorId(event.target.value);
+    };
+
+    const handleEditorPassChange = (event) => {
+        setEditorPass(event.target.value);
+    };
+
+    const handleEditorNameChange = (event) => {
+        setEditorName(event.target.value);
+    };
+
+    const handleAdminIdChange = (event) => {
+        setAdminId(event.target.value);
+    };
+
+    const handleAdminPassChange = (event) => {
+        setAdminPass(event.target.value);
+    };
+
     const handleSubmit = async () => {
         try {
             const payload = {
@@ -65,7 +141,7 @@ function Adminportal() {
                 }
             );
 
-            console.log(response.data);
+            setResponseMessage(response.data.message);
         } catch (error) {
             console.error(error);
         }
@@ -73,6 +149,10 @@ function Adminportal() {
 
     const handleAddAdmin = () => {
         setIsModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
     };
 
     return (
@@ -89,7 +169,7 @@ function Adminportal() {
                 </button>
                 <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    // onClick={handleAddEditor}
+                    onClick={handleAddEditor}
                 >
                     Add Editor
                 </button>
@@ -120,6 +200,7 @@ function Adminportal() {
                 </select>
             </section>
 
+            {/* Add Admin modal */}
             {isModalOpen && (
                 <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-500 bg-opacity-50">
                     <div className="bg-white p-4 rounded">
@@ -158,7 +239,79 @@ function Adminportal() {
                         >
                             Submit
                         </button>
-                        {responseMessage && <p>{responseMessage}</p>}
+                        <button
+                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                            onClick={handleModalClose}
+                        >
+                            Close
+                        </button>
+                        {responseMessage && (
+                            <p className="text-red-500 font-bold">
+                                {responseMessage}
+                            </p>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Add Editor Modal */}
+            {isEditorModalOpen && (
+                <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-500 bg-opacity-50">
+                    <div className="bg-white p-4 rounded">
+                        <h2 className="text-xl font-bold mb-2">Add Editor</h2>
+                        <input
+                            type="text"
+                            placeholder="Editor ID"
+                            value={editorId}
+                            onChange={handleEditorIdChange}
+                            className="border border-gray-400 p-2 mb-2"
+                        />
+                        <input
+                            type="password"
+                            placeholder="Editor Password"
+                            value={editorPass}
+                            onChange={handleEditorPassChange}
+                            className="border border-gray-400 p-2 mb-2"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Editor Name"
+                            value={editorName}
+                            onChange={handleEditorNameChange}
+                            className="border border-gray-400 p-2 mb-2"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Admin ID"
+                            value={adminId}
+                            onChange={handleAdminIdChange}
+                            className="border border-gray-400 p-2 mb-2"
+                        />
+                        <input
+                            type="password"
+                            placeholder="Admin Password"
+                            value={adminPass}
+                            onChange={handleAdminPassChange}
+                            className="border border-gray-400 p-2 mb-2"
+                        />
+                        {/* ... */}
+                        <button
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            onClick={handleEditorSubmit}
+                        >
+                            Submit
+                        </button>
+                        <button
+                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                            onClick={handleEditorModalClose}
+                        >
+                            Close
+                        </button>
+                        {responseMessage && (
+                            <p className="text-red-500 font-bold">
+                                {responseMessage}
+                            </p>
+                        )}
                     </div>
                 </div>
             )}
