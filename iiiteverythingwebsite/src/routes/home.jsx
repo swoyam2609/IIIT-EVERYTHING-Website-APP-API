@@ -34,10 +34,7 @@ function Home() {
     }
 
     async function handleButtonClick() {
-        console.log(selectedSubOption);
-        console.log(selectedDocOption);
         const url = `http://127.0.0.1:3000/find?sub=${selectedSubOption}&docType=${selectedDocOption}`;
-        console.log(url);
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -51,7 +48,6 @@ function Home() {
         try {
             const fileId = fileid;
             const downloadUrl = `http://127.0.0.1:3000/download/${fileId}`;
-            console.log(downloadUrl);
             const response = await fetch(downloadUrl);
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);

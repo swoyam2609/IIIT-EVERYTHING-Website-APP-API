@@ -192,8 +192,6 @@ function Adminportal() {
                 );
 
                 // Handle the response as needed
-                console.log(response.data);
-                console.log(response.data);
                 setResponseMessage("File Uploaded Successfully");
             } else {
                 setResponseMessage("Invalid Editor ID or Password");
