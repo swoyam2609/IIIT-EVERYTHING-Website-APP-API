@@ -1,55 +1,85 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Lottie from "lottie-react-web";
 import animation from "../assets/bg-animation.json";
 
 function Home() {
-    const [selectedOption, setSelectedOption] = useState("");
-    const [selectedList, setSelectedList] = useState([]);
+    const [selectedDocOption, setSelectedDocOption] = useState("");
+    const [SubOptions, setSubOptions] = useState([]);
+    const [selectedSubOption, setSelectedSubOption] = useState("");
+
+    useEffect(() => {
+        fetch("http://127.0.0.1:3000/getsubjects")
+            .then((response) => response.json())
+            .then((data) => {
+                setSubOptions(data.unique_sub_values);
+            })
+            .catch((error) => {
+                console.error("Error fetching list options:", error);
+            });
+    }, []);
 
     const handleOptionChange = (event) => {
-        setSelectedOption(event.target.value);
-        setSelectedList([]);
+        setSelectedDocOption(event.target.value);
     };
 
     const handleListChange = (event) => {
-        const options = Array.from(event.target.options)
-            .filter((option) => option.selected)
-            .map((option) => option.value);
-        setSelectedList(options);
+        setSelectedSubOption(event.target.value);
     };
 
     return (
-        <div>
-            <h1>Home</h1>
-            
-            <div>
-                <label htmlFor="category">Select Category: </label>
-                <select
-                    id="category"
-                    value={selectedOption}
-                    onChange={handleOptionChange}
-                >
-                    <option value="">Select...</option>
-                    <option value="NOTES">NOTES</option>
-                    <option value="PAPER">PAPER</option>
-                    <option value="BOOK">BOOK</option>
-                </select>
+        <div className="container mx-auto p-4">
+            <div className="grid grid-cols-1">
+                <div className="mb-4 w-full">
+                    <label htmlFor="category" className="mr-2 mb-1">
+                        Select Document Type:
+                    </label>
+                    <select
+                        id="category"
+                        value={selectedDocOption}
+                        onChange={handleOptionChange}
+                        className="px-2 py-1 border rounded w-full"
+                    >
+                        <option value="">Select...</option>
+                        <option key="NOTES" value="NOTES">
+                            NOTES
+                        </option>
+                        <option key="PAPER" value="PAPER">
+                            PAPER
+                        </option>
+                        <option key="BOOK" value="BOOK">
+                            BOOK
+                        </option>
+                    </select>
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="category" className="mr-2">
+                        Select Subject:
+                    </label>
+                    <select
+                        id="category"
+                        value={selectedDocOption}
+                        onChange={handleListChange}
+                        className="px-2 py-1 border rounded w-full"
+                    >
+                        {SubOptions.map((option) => (
+                            <option key={option} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                {/* Button to find the object */}
+                <div className="mb-4">
+                    <button
+                        type="button"
+                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                    >
+                        Find
+                    </button>
+                </div>
             </div>
-            <div>
-                <label htmlFor="list">Select List:</label>
-                <select
-                    id="list"
-                    multiple
-                    value={selectedList}
-                    onChange={handleListChange}
-                >
-                    <option value="Item 1">Item 1</option>
-                    <option value="Item 2">Item 2</option>
-                    <option value="Item 3">Item 3</option>
-                    <option value="Item 4">Item 4</option>
-                </select>
-            </div>
-            <div>
+
+            <div className="mb-4 w-1/4 mx-auto">
                 <Lottie
                     options={{
                         loop: true,

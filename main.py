@@ -4,6 +4,7 @@ from bson import ObjectId
 from pymongo import MongoClient
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
 
 app = FastAPI()
 
@@ -41,8 +42,10 @@ async def func(sub: str, docType: str, uploader: int, file: UploadFile = File(..
             "path": file_path,
             "sub": sub,
             "documentType": docType,
-            "uploader": uploader
+            "uploader": uploader,
+            "upload_date": datetime.now()
         }
+
         result = collection.insert_one(file_info)
 
         return {"file_id": str(result.inserted_id)}
