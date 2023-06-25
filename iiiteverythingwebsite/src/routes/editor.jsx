@@ -17,6 +17,7 @@ function Adminportal() {
     const [editorId, setEditorId] = useState(""); // Added state for editor ID
     const [editorPass, setEditorPass] = useState("");
     const [editorName, setEditorName] = useState("");
+    const [showVerifyModal, setShowVerifyModal] = useState(false);
 
     const handleAddEditor = () => {
         setIsEditorModalOpen(true);
@@ -24,6 +25,7 @@ function Adminportal() {
 
     const handleEditorModalClose = () => {
         setIsEditorModalOpen(false);
+        setResponseMessage("");
     };
 
     const handleEditorSubmit = async () => {
@@ -153,6 +155,59 @@ function Adminportal() {
 
     const handleModalClose = () => {
         setIsModalOpen(false);
+        setResponseMessage("");
+    };
+
+    const handleFileUploadVerify = async () => {
+        try {
+            const checkResponse = await axios.get(
+                "http://127.0.0.1:3000/checkeditor",
+                {
+                    params: {
+                        id: editorId,
+                        password: editorPass,
+                    },
+                }
+            );
+
+            if (checkResponse.data === true) {
+                const formData = new FormData();
+                formData.append("file", file);
+
+                const queryParams = {
+                    sub: subject,
+                    docType: docType,
+                    uploader: editorId,
+                };
+
+                const response = await axios.post(
+                    "http://127.0.0.1:3000/upload",
+                    formData,
+                    {
+                        params: queryParams,
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                );
+
+                // Handle the response as needed
+                console.log(response.data);
+                console.log(response.data);
+                setResponseMessage("File Uploaded Successfully");
+            } else {
+                setResponseMessage("Invalid Editor ID or Password");
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleUpload = async () => {
+        setShowVerifyModal(true);
+    };
+    const handleUploadClose = async () => {
+        setShowVerifyModal(false);
     };
 
     return (
@@ -198,6 +253,12 @@ function Adminportal() {
                     <option value="PAPER">PAPER</option>
                     <option value="BOOK">BOOK</option>
                 </select>
+                <button
+                    onClick={handleUpload}
+                    className="bg-blue-500 text-white font-semibold py-2 px-4 rounded"
+                >
+                    Upload
+                </button>
             </section>
 
             {/* Add Admin modal */}
@@ -304,6 +365,48 @@ function Adminportal() {
                         <button
                             className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                             onClick={handleEditorModalClose}
+                        >
+                            Close
+                        </button>
+                        {responseMessage && (
+                            <p className="text-red-500 font-bold">
+                                {responseMessage}
+                            </p>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Verify Editor Modal */}
+            {showVerifyModal && (
+                <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-500 bg-opacity-50">
+                    <div className="bg-white p-4 rounded">
+                        <h2 className="text-xl font-bold mb-2">
+                            Verify Editor
+                        </h2>
+                        <input
+                            type="text"
+                            placeholder="Editor ID"
+                            value={editorId}
+                            onChange={handleEditorIdChange}
+                            className="border border-gray-400 p-2 mb-2"
+                        />
+                        <input
+                            type="password"
+                            placeholder="Editor Password"
+                            value={editorPass}
+                            onChange={handleEditorPassChange}
+                            className="border border-gray-400 p-2 mb-2"
+                        />
+                        <button
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            onClick={handleFileUploadVerify}
+                        >
+                            Submit
+                        </button>
+                        <button
+                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                            onClick={handleUploadClose}
                         >
                             Close
                         </button>
