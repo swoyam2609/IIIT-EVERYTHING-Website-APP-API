@@ -31,7 +31,7 @@ function Adminportal() {
     const handleEditorSubmit = async () => {
         try {
             const checkResponse = await axios.get(
-                "http://127.0.0.1:3000/checkadmin",
+                "https://dbiiit.swoyam.engineer/checkadmin",
                 {
                     params: {
                         id: adminId,
@@ -49,7 +49,7 @@ function Adminportal() {
                 };
 
                 const response = await axios.post(
-                    "http://127.0.0.1:3000/addeditor",
+                    "https://dbiiit.swoyam.engineer/addeditor",
                     payload,
                     {
                         params: {
@@ -131,7 +131,7 @@ function Adminportal() {
             };
 
             const response = await axios.post(
-                "http://127.0.0.1:3000/addadmin",
+                "https://dbiiit.swoyam.engineer/addadmin",
                 payload,
                 {
                     params: {
@@ -161,7 +161,7 @@ function Adminportal() {
     const handleFileUploadVerify = async () => {
         try {
             const checkResponse = await axios.get(
-                "http://127.0.0.1:3000/checkeditor",
+                "https://dbiiit.swoyam.engineer/checkeditor",
                 {
                     params: {
                         id: editorId,
@@ -181,7 +181,7 @@ function Adminportal() {
                 };
 
                 const response = await axios.post(
-                    "http://127.0.0.1:3000/upload",
+                    "https://dbiiit.swoyam.engineer/upload",
                     formData,
                     {
                         params: queryParams,
