@@ -252,15 +252,15 @@ function Adminportal() {
           </h2>
           <div>
             <button
-              className={`bg-blue-300 hover:bg-blue-600 
-                    hover:text-white text-blue-800 font-bold py-2 px-4 rounded mr-2
+              className={`bg-blue-300 hover:bg-blue-400 
+                    hover:text-blue-900 text-blue-800 font-bold py-2 px-4 rounded mr-2
                      `}
               onClick={handleAddAdmin}
             >
               Add Admin
             </button>
             <button
-              className={`bg-blue-300 hover:bg-blue-600 text-blue-800 hover:text-white
+              className={`bg-blue-300 hover:bg-blue-400 text-blue-800 hover:text-blue-900
                     
                     font-bold py-2 px-4 rounded mr-2`}
               onClick={handleAddEditor}
