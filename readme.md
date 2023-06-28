@@ -8,15 +8,15 @@ The IIIT Everything API is a FastAPI-based backend that provides the necessary e
 
 ### API Documentation
 
-The API documentation can be accessed using the following link: [IIIT Everything API Documentation](https://dbiiit.swoyam.engineer/docs)
+The API documentation can be accessed using the following link: [IIIT Everything API Documentation]
 
 ### Swagger UI
 
-The Swagger UI provides an interactive interface for exploring and testing the API endpoints. You can access the Swagger UI using the following link: [IIIT Everything Swagger UI](https://dbiiit.swoyam.engineer/docs)
+The Swagger UI provides an interactive interface for exploring and testing the API endpoints. You can access the Swagger UI using the following link: [IIIT Everything Swagger UI]
 
 ## IIIT Everything Web App
 
-The IIIT Everything web app is a frontend application built with React that provides an intuitive and user-friendly interface for interacting with the IIIT Everything API. It allows users to upload files, search for resources based on subject and document type, and manage their uploaded files.
+The IIIT Everything web app is a front-end application built with React that provides an intuitive and user-friendly interface for interacting with the IIIT Everything API. It allows users to upload files, search for resources based on subject and document type, and manage their uploaded files.
 
 ## Features
 
