@@ -20,7 +20,7 @@ function Home() {
     const [files, setFiles] = useState([]);
 
     useEffect(() => {
-        fetch("http://127.0.0.1:3000/getsubjects")
+        fetch("https://dbiiit.swoyam.engineer/getsubjects")
             .then((response) => response.json())
             .then((data) => {
                 setSubOptions(data.unique_sub_values);
@@ -45,7 +45,7 @@ function Home() {
     }
 
     async function handleButtonClick() {
-        const url = `http://127.0.0.1:3000/find?sub=${selectedSubOption}&docType=${selectedDocOption}`;
+        const url = `https://dbiiit.swoyam.engineer/find?sub=${selectedSubOption}&docType=${selectedDocOption}`;
         try {
             const response = await fetch(url);
             const data = await response.json();
@@ -58,7 +58,7 @@ function Home() {
     async function handleDownload(fileid) {
         try {
             const fileId = fileid;
-            const downloadUrl = `http://127.0.0.1:3000/download/${fileId}`;
+            const downloadUrl = `https://dbiiit.swoyam.engineer/download/${fileId}`;
             const response = await fetch(downloadUrl);
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
