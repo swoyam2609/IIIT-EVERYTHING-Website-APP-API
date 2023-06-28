@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Lottie from "lottie-react-web";
-import animation from "../assets/bg-animation.json";
+import animation from "../assets/iiit every thing logo.json";
 import 'animate.css';
 import classNames from 'classnames';
 
@@ -76,12 +76,17 @@ function Home() {
     }
 
     return (
-        <div>
+        <div 
+        style={{
+              height: "100vh",
+              
+            }}>
             <div
         className="bg-cover  fixed bg-center  "
         style={{
+
         //   backgroundImage: `url(${bgImg}) `,
-        background:"white",
+        // background:"yellow",
           height: "100vh",
           width: "100vw",
           zIndex: "-10",
@@ -91,7 +96,13 @@ function Home() {
 
 
         
-        <div className="container mx-auto p-8  flex flex-col  justify-center item-center">
+        <div className="container  mx-auto p-8  flex flex-col  justify-center item-center"
+        //  style={{
+
+        //       height: "100vh",
+            
+        //     }}
+        >
             <div className="grid grid-cols-1 md:grid-cols-7 ">
                 <div className="mb-4 w-full mx-2 md:col-span-3 p-4">
                     <select
@@ -136,13 +147,14 @@ function Home() {
                     <button
                         type="button"
                         
-                        className="px-2 py-1 bg-green-700 text-white rounded hover:bg-white hover:text-green-700
-                        hover: border hover:border-green-400
+                        className="px-2 py-1 borde-0 bg-green-700 text-white rounded hover:bg-white hover:text-green-700
+                        hover:border-1  hover:border-green-400
                         transition-all duration-300"
                         onClick={handleButtonClick}
                     >
                         Find
                     </button>
+                   
                 </div>
             </div>
 
@@ -167,10 +179,11 @@ function Home() {
                 ))}
             </div>
 
-            <div className="mb-4 w-1/4  mx-auto">
+            <div className="mb-4 w-2/3 opacity-50  mx-auto ">
                 <Lottie className={classNames('animate__animated', 'animate__fadeIn', { 'animate__fadeIn--visible': isVisible })}
                     options={{
                         loop: true,
+                        
                         autoplay: true,
                         animationData: animation,
                         rendererSettings: {

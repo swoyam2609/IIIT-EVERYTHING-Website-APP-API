@@ -220,7 +220,8 @@ function Adminportal() {
           height: "100vh",
           width: "100vw",
           zIndex: "-10",
-          filter: "blur(2px)",
+        //   filter: "blur(2px)",
+        filter: "brightness(0.5)",
         }}
       ></div>
       <div

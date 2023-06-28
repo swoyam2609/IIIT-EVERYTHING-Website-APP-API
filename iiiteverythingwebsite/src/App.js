@@ -5,6 +5,8 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Footer from "./components/footer";
 import React, { useState, useEffect } from 'react';
 import LoadingSpinner from './components/spinner/LoadingSpinner';
+import { Link } from 'react-router-dom';
+
 
 
 
@@ -32,7 +34,11 @@ function App() {
                     <Route path="/admin" element={<Adminportal />} />
                 </Routes>
             </Router>
+            {/* <div className=""> */}
+
             <Footer/>
+            {/* <Link to="/admin">hi</Link> */}
+            {/* </div> */}
         </div>
       )}
            
