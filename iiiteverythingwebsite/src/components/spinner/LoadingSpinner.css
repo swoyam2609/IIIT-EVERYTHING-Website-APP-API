@@ -1,0 +1,7 @@
+.spinner {
+    
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Optional: Adjust the height based on your layout requirements */
+}

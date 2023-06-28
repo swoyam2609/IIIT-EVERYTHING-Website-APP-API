@@ -76,6 +76,21 @@ function Home() {
     }
 
     return (
+        <div>
+            <div
+        className="bg-cover  fixed bg-center  "
+        style={{
+        //   backgroundImage: `url(${bgImg}) `,
+        background:"white",
+          height: "100vh",
+          width: "100vw",
+          zIndex: "-10",
+          filter: "blur(2px)",
+        }}
+      ></div>
+
+
+        
         <div className="container mx-auto p-8  flex flex-col  justify-center item-center">
             <div className="grid grid-cols-1 md:grid-cols-7 ">
                 <div className="mb-4 w-full mx-2 md:col-span-3 p-4">
@@ -166,6 +181,7 @@ function Home() {
                     
                 />
             </div>
+        </div>
         </div>
     );
 }
