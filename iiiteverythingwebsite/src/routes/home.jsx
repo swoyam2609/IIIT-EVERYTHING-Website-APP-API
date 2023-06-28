@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Lottie from "lottie-react-web";
 import animation from "../assets/iiit every thing logo.json";
-import 'animate.css';
-import classNames from 'classnames';
-
-
-
+import "animate.css";
+import classNames from "classnames";
+import { Link } from "react-router-dom";
 
 function Home() {
     const [isVisible, setIsVisible] = useState(false);
     useEffect(() => {
         setIsVisible(true); // Set isVisible to true to trigger the animation
-      }, []);
-      
+    }, []);
 
     const [selectedDocOption, setSelectedDocOption] = useState("");
     const [SubOptions, setSubOptions] = useState([]);
@@ -75,126 +72,163 @@ function Home() {
         }
     }
 
+    async function handleShare(fileId) {
+        try {
+            const shareUrl = `https://dbiiit.swoyam.engineer/download/${fileId}`;
+
+            // Copy the share URL to the clipboard
+            await navigator.clipboard.writeText(shareUrl);
+
+            // Optionally, you can show a success message to the user
+            console.log("Link copied to clipboard:", shareUrl);
+        } catch (error) {
+            console.error("Error copying link to clipboard:", error);
+        }
+    }
+
+    const [clickCount, setClickCount] = useState(0);
+
+    const handleClick = () => {
+        setClickCount((prevCount) => prevCount + 1);
+
+        // If clickCount reaches 2, redirect to admin page
+        if (clickCount === 1) {
+            setTimeout(() => {
+                // Use your routing mechanism to navigate to the admin page
+                window.location.href = "/admin";
+            }, 300);
+        }
+    };
+
     return (
-        <div 
-        style={{
-              height: "100vh",
-              
-            }}>
-            <div
-        className="bg-cover  fixed bg-center  "
-        style={{
-
-        //   backgroundImage: `url(${bgImg}) `,
-        // background:"yellow",
-          height: "100vh",
-          width: "100vw",
-          zIndex: "-10",
-          filter: "blur(2px)",
-        }}
-      ></div>
-
-
-        
-        <div className="container  mx-auto p-8  flex flex-col  justify-center item-center"
-        //  style={{
-
-        //       height: "100vh",
-            
-        //     }}
+        <div
+            style={{
+                height: "100vh",
+            }}
         >
-            <div className="grid grid-cols-1 md:grid-cols-7 ">
-                <div className="mb-4 w-full mx-2 md:col-span-3 p-4">
-                    <select
-                        id="category"
-                        value={selectedDocOption}
-                        onChange={handleOptionChange}
-                        className="px-2 py-1 border rounded w-full"
-                    >
-                        <option key={""} value="">
-                            Select Document Type
-                        </option>
-                        <option key="NOTES" value="NOTES">
-                            NOTES
-                        </option>
-                        <option key="PAPER" value="PAPER">
-                            PAPER
-                        </option>
-                        <option key="BOOK" value="BOOK">
-                            BOOK
-                        </option>
-                    </select>
-                </div>
-                <div className="mb-4 mx-2 p-4 md:col-span-3">
-                    <select
-                        id="category"
-                        value={selectedSubOption}
-                        onChange={handleListChange}
-                        className="px-2 py-1 border rounded w-full"
-                    >
-                        <option key={""} value="">
-                            Select Subject
-                        </option>
-                        {SubOptions.map((option) => (
-                            <option key={option} value={option}>
-                                {option}
+            <div
+                className="bg-cover  fixed bg-center  "
+                style={{
+                    //   backgroundImage: `url(${bgImg}) `,
+                    // background:"yellow",
+                    height: "100vh",
+                    width: "100vw",
+                    zIndex: "-10",
+                    filter: "blur(2px)",
+                }}
+            ></div>
+
+            <div
+                className="container  mx-auto p-8  flex flex-col  justify-center item-center"
+                //  style={{
+
+                //       height: "100vh",
+
+                //     }}
+            >
+                <div className="grid grid-cols-1 md:grid-cols-7 ">
+                    <div className="mb-4 w-full mx-2 md:col-span-3 p-4">
+                        <select
+                            id="category"
+                            value={selectedDocOption}
+                            onChange={handleOptionChange}
+                            className="px-2 py-1 border rounded w-full"
+                        >
+                            <option key={""} value="">
+                                Select Document Type
                             </option>
-                        ))}
-                    </select>
-                </div>
-                {/* Button to find the object */}
-                <div className="mb-4 p-4 mx-auto">
-                    <button
-                        type="button"
-                        
-                        className="px-2 py-1 borde-0 bg-green-700 text-white rounded hover:bg-white hover:text-green-700
+                            <option key="NOTES" value="NOTES">
+                                NOTES
+                            </option>
+                            <option key="PAPER" value="PAPER">
+                                PAPER
+                            </option>
+                            <option key="BOOK" value="BOOK">
+                                BOOK
+                            </option>
+                        </select>
+                    </div>
+                    <div className="mb-4 mx-2 p-4 md:col-span-3">
+                        <select
+                            id="category"
+                            value={selectedSubOption}
+                            onChange={handleListChange}
+                            className="px-2 py-1 border rounded w-full"
+                        >
+                            <option key={""} value="">
+                                Select Subject
+                            </option>
+                            {SubOptions.map((option) => (
+                                <option key={option} value={option}>
+                                    {option}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    {/* Button to find the object */}
+                    <div className="mb-4 p-4 mx-auto">
+                        <button
+                            type="button"
+                            className="px-2 py-1 borde-0 bg-green-700 text-white rounded hover:bg-white hover:text-green-700
                         hover:border-1  hover:border-green-400
                         transition-all duration-300"
-                        onClick={handleButtonClick}
-                    >
-                        Find
-                    </button>
-                   
-                </div>
-            </div>
-
-            <div className="mt-12 ">
-                {files.map((file, index) => (
-                    <div key={index} className="border p-4 rounded-lg mb-4">
-                        <p className="font-bold">File Name: {file.filename}</p>
-                        <p className="text-gray-600">Sub: {file.sub}</p>
-                        <p className="text-gray-600">
-                            Document Type: {file.documentType}
-                        </p>
-                        <p className="text-gray-600">
-                            Upload Date: {formatDate(file.upload_date)}
-                        </p>
-                        <button
-                            onClick={() => handleDownload(file._id)}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-lg mt-2"
+                            onClick={handleButtonClick}
                         >
-                            Download
+                            Find
                         </button>
                     </div>
-                ))}
-            </div>
+                </div>
 
-            <div className="mb-4 w-2/3 opacity-50  mx-auto ">
-                <Lottie className={classNames('animate__animated', 'animate__fadeIn', { 'animate__fadeIn--visible': isVisible })}
-                    options={{
-                        loop: true,
-                        
-                        autoplay: true,
-                        animationData: animation,
-                        rendererSettings: {
-                            preserveAspectRatio: "xMidYMid slice",
-                        },
-                    }}
-                    speed={0.5}
-                    
-                />
+                <div className="mt-12 ">
+                    {files.map((file, index) => (
+                        <div key={index} className="border p-4 rounded-lg mb-4">
+                            <p className="font-bold text-white">
+                                File Name: {file.filename}
+                            </p>
+                            <p className="text-gray-400">Sub: {file.sub}</p>
+                            <p className="text-gray-400">
+                                Document Type: {file.documentType}
+                            </p>
+                            <p className="text-gray-400">
+                                Upload Date: {formatDate(file.upload_date)}
+                            </p>
+                            <button
+                                onClick={() => handleDownload(file._id)}
+                                className="px-4 py-2 bg-blue-500 text-white rounded-lg mt-2"
+                            >
+                                Download
+                            </button>
+                            <button
+                                onClick={() => handleShare(file._id)}
+                                className="px-4 py-2 ml-3 bg-green-700 text-white rounded-lg mt-2"
+                            >
+                                Share
+                            </button>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mb-4 w-2/3 opacity-50  mx-auto ">
+                    <Link onClick={handleClick}>
+                        <Lottie
+                            className={classNames(
+                                "animate__animated",
+                                "animate__fadeIn",
+                                { "animate__fadeIn--visible": isVisible }
+                            )}
+                            options={{
+                                loop: true,
+                                autoplay: true,
+                                animationData: animation,
+                                rendererSettings: {
+                                    preserveAspectRatio: "xMidYMid slice",
+                                },
+                            }}
+                            speed={0.5}
+                        />
+                    </Link>
+                </div>
             </div>
-        </div>
         </div>
     );
 }
