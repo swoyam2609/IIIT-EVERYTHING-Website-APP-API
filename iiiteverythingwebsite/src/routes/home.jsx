@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from "react";
 import Lottie from "lottie-react-web";
 import animation from "../assets/bg-animation.json";
+import 'animate.css';
+import classNames from 'classnames';
+
+
+
 
 function Home() {
+    const [isVisible, setIsVisible] = useState(false);
+    useEffect(() => {
+        setIsVisible(true); // Set isVisible to true to trigger the animation
+      }, []);
+      
+
     const [selectedDocOption, setSelectedDocOption] = useState("");
     const [SubOptions, setSubOptions] = useState([]);
     const [selectedSubOption, setSelectedSubOption] = useState("");
@@ -65,9 +76,9 @@ function Home() {
     }
 
     return (
-        <div className="container mx-auto p-4">
-            <div className="grid grid-cols-1 md:grid-cols-7">
-                <div className="mb-4 w-full mx-2 md:col-span-3">
+        <div className="container mx-auto p-8  flex flex-col  justify-center item-center">
+            <div className="grid grid-cols-1 md:grid-cols-7 ">
+                <div className="mb-4 w-full mx-2 md:col-span-3 p-4">
                     <select
                         id="category"
                         value={selectedDocOption}
@@ -88,7 +99,7 @@ function Home() {
                         </option>
                     </select>
                 </div>
-                <div className="mb-4 mx-2 md:col-span-3">
+                <div className="mb-4 mx-2 p-4 md:col-span-3">
                     <select
                         id="category"
                         value={selectedSubOption}
@@ -106,10 +117,13 @@ function Home() {
                     </select>
                 </div>
                 {/* Button to find the object */}
-                <div className="mb-4 mx-auto">
+                <div className="mb-4 p-4 mx-auto">
                     <button
                         type="button"
-                        className="px-2 py-1 bg-blue-500 text-white rounded"
+                        
+                        className="px-2 py-1 bg-green-700 text-white rounded hover:bg-white hover:text-green-700
+                        hover: border hover:border-green-400
+                        transition-all duration-300"
                         onClick={handleButtonClick}
                     >
                         Find
@@ -117,7 +131,7 @@ function Home() {
                 </div>
             </div>
 
-            <div className="mt-4">
+            <div className="mt-12 ">
                 {files.map((file, index) => (
                     <div key={index} className="border p-4 rounded-lg mb-4">
                         <p className="font-bold">File Name: {file.filename}</p>
@@ -138,8 +152,8 @@ function Home() {
                 ))}
             </div>
 
-            <div className="mb-4 w-1/4 mx-auto">
-                <Lottie
+            <div className="mb-4 w-1/4  mx-auto">
+                <Lottie className={classNames('animate__animated', 'animate__fadeIn', { 'animate__fadeIn--visible': isVisible })}
                     options={{
                         loop: true,
                         autoplay: true,
@@ -149,6 +163,7 @@ function Home() {
                         },
                     }}
                     speed={0.5}
+                    
                 />
             </div>
         </div>
