@@ -17,27 +17,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -48,6 +56,7 @@ import com.example.iiittrial.presentation.MainViewModel
 import com.example.iiittrial.R
 import com.example.iiittrial.data.models.DownloadedFile
 import com.example.iiittrial.data.models.FileItem
+import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import okio.IOException
 import java.io.File
@@ -66,16 +75,21 @@ fun MainFile(application: MainActivity){
 
     val appContext: Context = application.applicationContext
 
-    var query by remember { mutableStateOf("") } // query for searching with Subject
-    var docType by remember { mutableStateOf("") }// query for searching with Document type Ex: Notes, Question Paper, etc
+    val scope = rememberCoroutineScope()
+
     val searching = remember { mutableStateOf(false) }// to check if searching is going on or not
-    val downloadedFile = viewModel.downloadedFile // Store the downloaded file in the ViewModel
+
+    var expanded_sub by remember { mutableStateOf(false) }
+    var expanded_doc by remember { mutableStateOf(false) }
 
     var selectedSubject by remember { mutableStateOf("") }
-    val subjects = listOf("Subject 1", "Subject 2", "Subject 3", /* Add more subjects */)
+    val subjectList = listOf("BET","CD","DSA Lab","Data Structures","Engineering Chemistry","GRAPH THEORY","Maths 1","Maths-2","OS","PHYSICS","ROBOTICS","WSM","Workshop")
 
     var selectedDocType by remember { mutableStateOf("") }
-    val docTypes = listOf("Notes", "Paper", "Book")
+    val docTypeList = listOf("NOTES", "PAPER", "BOOK")
+
+    val downloadedFile = viewModel.downloadedFile // Store the downloaded file in the ViewModel
+
 
     // Register observer for downloadedFile in a LaunchedEffect block
     LaunchedEffect(downloadedFile) {
@@ -88,6 +102,7 @@ fun MainFile(application: MainActivity){
         }
     }
 
+
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(10.dp)) {
@@ -98,27 +113,91 @@ fun MainFile(application: MainActivity){
 
             Row(horizontalArrangement = Arrangement.SpaceEvenly) {
 
-                // Search bar for searching with Subject
-                TextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    label = { Text("Search Subject") },
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(shape = RoundedCornerShape(10.dp))
-                )
+                var textfieldSize by remember {
+                    mutableStateOf(Size.Zero)
+                }
 
-                Spacer(modifier = Modifier.width(5.dp))
+                val icon_sub = if (expanded_sub)
+                    Icons.Filled.KeyboardArrowUp
+                else
+                    Icons.Filled.KeyboardArrowDown
 
-                // Search bar for searching with Document type Ex: Notes, Question Paper, etc
-                TextField(
-                    value = docType,
-                    onValueChange = { docType = it },
-                    label = { Text("Document type") },
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(shape = RoundedCornerShape(10.dp))
-                )
+                Column(
+                    Modifier
+                        .padding(5.dp)
+                        .weight(1f)) {
+                    OutlinedTextField(
+                        value = selectedSubject,
+                        onValueChange = { selectedSubject = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onGloballyPositioned { coordinates ->
+                                //This value is used to assign to the DropDown the same width
+                                textfieldSize = coordinates.size.toSize()
+                            },
+                        label = {Text("Subjects")},
+                        trailingIcon = {
+                            Icon(icon_sub,"contentDescription",
+                                Modifier.clickable { expanded_sub = !expanded_sub })
+                        }
+                    )
+
+                    DropdownMenu(
+                        expanded = expanded_sub,
+                        onDismissRequest = { expanded_sub = false },
+                        modifier = Modifier.width(with(LocalDensity.current){textfieldSize.width.toDp()})
+                    ) {
+                        subjectList.forEach { label ->
+                            DropdownMenuItem(onClick =
+                            { selectedSubject = label
+                                expanded_sub = false
+                            }, text = { Text(text = label) })
+                        }
+                    }
+                }
+
+                Log.d("MainFile",selectedSubject)
+
+                val icon_doc = if (expanded_doc)
+                    Icons.Filled.KeyboardArrowUp
+                else
+                    Icons.Filled.KeyboardArrowDown
+
+
+                Column(
+                    Modifier
+                        .padding(5.dp)
+                        .weight(1f)) {
+                    OutlinedTextField(
+                        value = selectedDocType,
+                        onValueChange = { selectedDocType = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onGloballyPositioned { coordinates ->
+                                //This value is used to assign to the DropDown the same width
+                                textfieldSize = coordinates.size.toSize()
+                            },
+                        label = {Text("Document")},
+                        trailingIcon = {
+                            Icon(icon_doc,"contentDescription",
+                                Modifier.clickable { expanded_doc = !expanded_doc })
+                        }
+                    )
+                    DropdownMenu(
+                        expanded = expanded_doc,
+                        onDismissRequest = { expanded_doc = false },
+                        modifier = Modifier.width(with(LocalDensity.current){textfieldSize.width.toDp()})
+                    ) {
+                        docTypeList.forEach { label ->
+                            DropdownMenuItem(onClick =
+                            { selectedDocType = label
+                                expanded_doc = false
+                            }, text = { Text(text = label) })
+                        }
+                    }
+                }
+                Log.d("MainFile",selectedDocType)
+
             }
 
             Spacer(modifier =Modifier.height(10.dp))
@@ -126,10 +205,24 @@ fun MainFile(application: MainActivity){
             // Search button
             Button(
                 onClick = {
-                    viewModel.findFiles(query, docType)
-                    //clear the query and docType
-                    query = ""
-                    docType = ""
+                    Log.e("MainFile", "MainFile: $selectedSubject $selectedDocType")
+                    val subject = if (selectedSubject.isEmpty()) {
+                        // Handle empty subject case here, e.g., set a default value or show an error message
+                        // For now, let's assume an empty string as the default value
+                        ""
+                    } else {
+                        selectedSubject
+                    }
+                    val docType = if (selectedDocType.isEmpty()) {
+                        // Handle empty docType case here, e.g., set a default value or show an error message
+                        // For now, let's assume an empty string as the default value
+                        ""
+                    } else {
+                        selectedDocType
+                    }
+                    scope.launch{
+                        viewModel.findFiles(sub = subject, docType = docType)
+                    }
                 }
             ) {
                 Text("Search")
@@ -137,13 +230,17 @@ fun MainFile(application: MainActivity){
             Spacer(modifier = Modifier.height(10.dp))
 
             // Observe findFilesValue in LaunchedEffect
-            LaunchedEffect(viewModel.findFilesValue) {
+            LaunchedEffect(key1 = viewModel.findFilesValue) {
                 viewModel.findFilesValue.observe(lifecycleOwner, Observer { response ->
                     if (response.isSuccessful) {
                         searching.value = true
                         response.body()?.let {
+                            for (file in it) {
+                                Log.d("MainFile", "File: ${file.id} ${file.filename} ${file.sub} ${file.documentType}")
+                            }
                             viewModel.files = it
                         }
+                        Log.d("MainFile", "MainFile: ${response.body()}")
                     } else {
                         searching.value = false
                         Log.d("MainFile", "MainFile: ${response.errorBody()}")
@@ -152,7 +249,9 @@ fun MainFile(application: MainActivity){
             }
 
             // Show the List of files
-            FileListView(files = viewModel.files, appContext, viewModel, lifecycleOwner)
+            if (searching.value) {
+                FileListView(files = viewModel.files, appContext = appContext, viewModel = viewModel, lifecycleOwner = lifecycleOwner)
+            }
 
         }
     }
@@ -198,20 +297,24 @@ fun FileListView(
                             .align(Alignment.CenterVertically)
                             .clickable {
                                 viewModel.downloadFile(file.id)
-                                viewModel.downloadfileValue.observe(lifecycleOwner, Observer { response ->
+                                viewModel.downloadfileValue.observe(
+                                    lifecycleOwner,
+                                    Observer { response ->
                                         if (response.isSuccessful) {
-                                            response.body()?.let {
-                                                saveResponseBodyAsPdf(
-                                                    responseBody = it,
-                                                    context = appContext,
-                                                    fileName = file.filename,
-                                                    viewModel = viewModel
-                                                )
+                                            response
+                                                .body()
+                                                ?.let {
+                                                    saveResponseBodyAsPdf(
+                                                        responseBody = it,
+                                                        context = appContext,
+                                                        fileName = file.filename,
+                                                        viewModel = viewModel
+                                                    )
 
-                                            }
+                                                }
                                         }
 
-                                })
+                                    })
                             }
                     )
                 }
@@ -220,6 +323,9 @@ fun FileListView(
         }
     }
 }
+
+
+
 @Composable
 fun EllipsisText(text: String, maxLength: Int) {
     val trimmedText = remember {
@@ -241,7 +347,6 @@ fun EllipsisText(text: String, maxLength: Int) {
 fun saveResponseBodyAsPdf(responseBody: ResponseBody, context: Context, fileName: String,viewModel: MainViewModel) {
     try {
         viewModel.clearDownloadedFile() // Clear the previous downloaded file, if any
-
 
         val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val outputFile = File(storageDir, fileName)
@@ -271,5 +376,6 @@ fun saveResponseBodyAsPdf(responseBody: ResponseBody, context: Context, fileName
 fun showToast(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
+
 
 

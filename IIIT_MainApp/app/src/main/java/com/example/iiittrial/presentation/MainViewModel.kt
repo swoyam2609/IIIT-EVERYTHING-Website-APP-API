@@ -27,17 +27,19 @@ class MainViewModel(private val repository: FileRepo): ViewModel(){
     //Values for the API
     var downloadfileValue : MutableLiveData<Response<ResponseBody>> = MutableLiveData()
     var findFilesValue : MutableLiveData<Response<List<FileItem>>> = MutableLiveData()
-    private val _downloadedFile = mutableStateOf<DownloadedFile?>(null)
 
+    private val _downloadedFile = mutableStateOf<DownloadedFile?>(null)
     val downloadedFile: DownloadedFile? get() = _downloadedFile.value
+
+    fun setDownloadedFile(responseBody: ResponseBody, fileName: String) {
+        _downloadedFile.value = DownloadedFile(responseBody, fileName)
+    }
 
     fun clearDownloadedFile() {
         _downloadedFile.value = null
     }
 
-    fun setDownloadedFile(responseBody: ResponseBody, fileName: String) {
-        _downloadedFile.value = DownloadedFile(responseBody, fileName)
-    }
+
 
     //Functions for the UI
     fun findFiles(sub: String, docType: String){
@@ -52,6 +54,9 @@ class MainViewModel(private val repository: FileRepo): ViewModel(){
 
     fun downloadFile(fileId: String){
         viewModelScope.launch {
+            if(downloadfileValue.value != null){
+                downloadfileValue.value = null
+            }
             val downloadFile = repository.downloadFile(fileId)
             downloadfileValue.value = downloadFile
         }
