@@ -1,4 +1,4 @@
-package com.example.iiittrial
+package com.example.iiittrial.util
 
 class Constants {
     companion object{

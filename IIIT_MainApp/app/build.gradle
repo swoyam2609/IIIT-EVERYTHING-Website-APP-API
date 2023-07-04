@@ -84,6 +84,8 @@ dependencies {
     kapt "androidx.hilt:hilt-compiler:1.0.0"
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
+    //Lottie
+    implementation 'com.airbnb.android:lottie-compose:6.0.0'
 
     implementation 'com.itextpdf:itextpdf:5.5.13.2'
 

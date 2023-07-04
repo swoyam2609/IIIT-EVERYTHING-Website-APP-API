@@ -1,12 +1,14 @@
-package com.example.iiittrial
+package com.example.iiittrial.presentation
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.iiittrial.models.FileItem
-import com.example.iiittrial.models.FileList
+import com.example.iiittrial.data.models.DownloadedFile
+import com.example.iiittrial.data.models.FileItem
+import com.example.iiittrial.domain.repo.FileRepo
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -25,10 +27,24 @@ class MainViewModel(private val repository: FileRepo): ViewModel(){
     //Values for the API
     var downloadfileValue : MutableLiveData<Response<ResponseBody>> = MutableLiveData()
     var findFilesValue : MutableLiveData<Response<List<FileItem>>> = MutableLiveData()
+    private val _downloadedFile = mutableStateOf<DownloadedFile?>(null)
+
+    val downloadedFile: DownloadedFile? get() = _downloadedFile.value
+
+    fun clearDownloadedFile() {
+        _downloadedFile.value = null
+    }
+
+    fun setDownloadedFile(responseBody: ResponseBody, fileName: String) {
+        _downloadedFile.value = DownloadedFile(responseBody, fileName)
+    }
 
     //Functions for the UI
     fun findFiles(sub: String, docType: String){
         viewModelScope.launch {
+            //Clear the list before adding new items
+            _files.clear()
+
             val findFiles = repository.findFiles(sub, docType)
             findFilesValue.value = findFiles
         }

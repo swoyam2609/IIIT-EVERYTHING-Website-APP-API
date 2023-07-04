@@ -1,6 +1,6 @@
-package com.example.iiittrial
+package com.example.iiittrial.data.remote
 
-import com.example.iiittrial.models.FileItem
+import com.example.iiittrial.data.models.FileItem
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.GET
