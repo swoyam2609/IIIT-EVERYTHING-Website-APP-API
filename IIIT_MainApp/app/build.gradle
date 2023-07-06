@@ -89,4 +89,7 @@ dependencies {
 
     implementation 'com.itextpdf:itextpdf:5.5.13.2'
 
+    //navigation
+    implementation "androidx.navigation:navigation-compose:2.4.0-beta02"
+
 }

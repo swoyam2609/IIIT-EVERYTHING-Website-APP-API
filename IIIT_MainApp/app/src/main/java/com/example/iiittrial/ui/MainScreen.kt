@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,14 +33,20 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -54,8 +62,8 @@ import com.example.iiittrial.domain.repo.FileRepo
 import com.example.iiittrial.MainActivity
 import com.example.iiittrial.presentation.MainViewModel
 import com.example.iiittrial.R
-import com.example.iiittrial.data.models.DownloadedFile
 import com.example.iiittrial.data.models.FileItem
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import okio.IOException
@@ -64,7 +72,7 @@ import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainFile(application: MainActivity){
+fun MainScreen(application:MainActivity){
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val viewModel = viewModel<MainViewModel>(factory = object : ViewModelProvider.Factory{
@@ -105,6 +113,7 @@ fun MainFile(application: MainActivity){
 
     Column(modifier = Modifier
         .fillMaxSize()
+        .background(Color(0xFF302C42))
         .padding(10.dp)) {
         Column(modifier = Modifier
             .fillMaxHeight()
@@ -229,8 +238,11 @@ fun MainFile(application: MainActivity){
             }
             Spacer(modifier = Modifier.height(10.dp))
 
+            // Define a key for the FileListView
+            val fileListKey = remember { mutableStateOf(0) }
+
             // Observe findFilesValue in LaunchedEffect
-            LaunchedEffect(key1 = viewModel.findFilesValue) {
+            LaunchedEffect(viewModel.findFilesValue) {
                 viewModel.findFilesValue.observe(lifecycleOwner, Observer { response ->
                     if (response.isSuccessful) {
                         searching.value = true
@@ -239,6 +251,8 @@ fun MainFile(application: MainActivity){
                                 Log.d("MainFile", "File: ${file.id} ${file.filename} ${file.sub} ${file.documentType}")
                             }
                             viewModel.files = it
+                            // Update the key to trigger recomposition of the FileListView
+                            fileListKey.value += 1
                         }
                         Log.d("MainFile", "MainFile: ${response.body()}")
                     } else {
@@ -249,10 +263,33 @@ fun MainFile(application: MainActivity){
             }
 
             // Show the List of files
-            if (searching.value) {
-                FileListView(files = viewModel.files, appContext = appContext, viewModel = viewModel, lifecycleOwner = lifecycleOwner)
-            }
+            ShowFileListView(
+                files = viewModel.files,
+                appContext = appContext,
+                viewModel = viewModel,
+                lifecycleOwner = lifecycleOwner,
+                searching = searching.value,
+                fileListKey = fileListKey.value
+            )
 
+        }
+    }
+}
+
+
+@Composable
+fun ShowFileListView(
+    files: List<FileItem>,
+    appContext: Context,
+    viewModel: MainViewModel,
+    lifecycleOwner: androidx.lifecycle.LifecycleOwner,
+    searching: Boolean,
+    fileListKey: Int
+) {
+    if (searching) {
+        // Use the key parameter to trigger recomposition of the FileListView
+        key(fileListKey) {
+            FileListView(files = files, appContext = appContext, viewModel = viewModel, lifecycleOwner = lifecycleOwner)
         }
     }
 }
@@ -300,21 +337,26 @@ fun FileListView(
                                 viewModel.downloadfileValue.observe(
                                     lifecycleOwner,
                                     Observer { response ->
-                                        if (response.isSuccessful) {
-                                            response
-                                                .body()
-                                                ?.let {
-                                                    saveResponseBodyAsPdf(
-                                                        responseBody = it,
-                                                        context = appContext,
-                                                        fileName = file.filename,
-                                                        viewModel = viewModel
-                                                    )
+                                        if (response != null) {
+                                            if (response.isSuccessful) {
+                                                response
+                                                    .body()
+                                                    ?.let {
+                                                        saveResponseBodyAsPdf(
+                                                            responseBody = it,
+                                                            context = appContext,
+                                                            fileName = file.filename,
+                                                            viewModel = viewModel
+                                                        )
 
-                                                }
+                                                    }
+                                            }
+                                        } else {
+                                            Log.d("MainFile", "MainFile: The response Body is null")
                                         }
 
                                     })
+
                             }
                     )
                 }
@@ -344,29 +386,38 @@ fun EllipsisText(text: String, maxLength: Int) {
 }
 
 //Download file and save it to Downloads folder
-fun saveResponseBodyAsPdf(responseBody: ResponseBody, context: Context, fileName: String,viewModel: MainViewModel) {
+fun saveResponseBodyAsPdf(responseBody: ResponseBody?, context: Context, fileName: String,viewModel: MainViewModel) {
     try {
         viewModel.clearDownloadedFile() // Clear the previous downloaded file, if any
 
         val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val outputFile = File(storageDir, fileName)
 
-        val inputStream = responseBody.byteStream()
+        val inputStream = responseBody?.byteStream()
         val outputStream = FileOutputStream(outputFile)
 
         val buffer = ByteArray(4096)
-        var bytesRead: Int
-        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+        var bytesRead: Int = 0
+        while (inputStream?.read(buffer).also {
+                if (it != null) {
+                    bytesRead = it
+                }
+            } != -1) {
             outputStream.write(buffer, 0, bytesRead)
         }
 
         outputStream.flush()
         outputStream.close()
-        inputStream.close()
+        inputStream?.close()
 
-        viewModel.setDownloadedFile(responseBody, fileName)
+        if (responseBody != null) {
+            viewModel.setDownloadedFile(responseBody, fileName)
+        }
+        else{
+            Log.d("MainFile", "MainFile: The response body is null")
+        }
 
-        showToast(context, "File downloaded successfully")
+        showToast(context, "File downloaded successfully${responseBody?.contentLength()}")
     } catch (e: IOException) {
         e.printStackTrace()
         showToast(context, "Error downloading file")

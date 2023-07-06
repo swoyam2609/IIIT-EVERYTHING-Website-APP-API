@@ -39,13 +39,12 @@ class MainViewModel(private val repository: FileRepo): ViewModel(){
         _downloadedFile.value = null
     }
 
-
-
     //Functions for the UI
     fun findFiles(sub: String, docType: String){
         viewModelScope.launch {
             //Clear the list before adding new items
             _files.clear()
+
 
             val findFiles = repository.findFiles(sub, docType)
             findFilesValue.value = findFiles
@@ -54,9 +53,6 @@ class MainViewModel(private val repository: FileRepo): ViewModel(){
 
     fun downloadFile(fileId: String){
         viewModelScope.launch {
-            if(downloadfileValue.value != null){
-                downloadfileValue.value = null
-            }
             val downloadFile = repository.downloadFile(fileId)
             downloadfileValue.value = downloadFile
         }
