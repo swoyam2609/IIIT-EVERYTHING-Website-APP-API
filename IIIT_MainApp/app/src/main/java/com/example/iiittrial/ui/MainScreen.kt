@@ -1,6 +1,9 @@
 package com.example.iiittrial.ui
 
+import android.app.DownloadManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
@@ -81,11 +84,19 @@ import com.example.iiittrial.R
 import com.example.iiittrial.data.models.FileItem
 import com.example.iiittrial.domain.repo.FileRepo
 import com.example.iiittrial.presentation.MainViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.ResponseBody
 import okio.IOException
 import java.io.File
 import java.io.FileOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -132,16 +143,16 @@ fun MainScreen(application: MainActivity) {
 
 
     // Register observer for downloadedFile in a LaunchedEffect block
-    LaunchedEffect(downloadedFile) {
-        downloadedFile?.let { file ->
-            saveResponseBodyAsPdf(
-                responseBody = file.responseBody,
-                context = appContext,
-                fileName = file.fileName, viewModel = viewModel
-            )
-            viewModel.clearDownloadedFile() // Clear the downloaded file in ViewModel
-        }
-    }
+//    LaunchedEffect(downloadedFile) {
+//        downloadedFile?.let { file ->
+//            saveResponseBodyAsPdf(
+//                responseBody = file.responseBody,
+//                context = appContext,
+//                fileName = file.fileName, viewModel = viewModel
+//            )
+//            viewModel.clearDownloadedFile() // Clear the downloaded file in ViewModel
+//        }
+//    }
 
     Scaffold(modifier = Modifier.background(Color(0xFF302C42)),
         bottomBar = {
@@ -458,23 +469,30 @@ fun FileListView(
                                 nameButton = "Download",
                                 roundedCornerShape = RoundedCornerShape(10.dp)
                             ) {
-                                viewModel.downloadFile(file.id)
-                                viewModel.downloadfileValue.observe(lifecycleOwner) { response ->
-                                    if (response != null) {
-                                        if (response.isSuccessful) {
-                                            response.body()?.let {
-                                                saveResponseBodyAsPdf(
-                                                    responseBody = it,
-                                                    context = appContext,
-                                                    fileName = file.filename,
-                                                    viewModel = viewModel
-                                                )
-                                            }
-                                        }
-                                    } else {
-                                        Log.d("MainFile", "MainFile: The response Body is null")
-                                    }
-                                }
+//                                viewModel.downloadFile(file.id)
+//                                viewModel.downloadfileValue.observe(lifecycleOwner) { response ->
+//                                    if (response != null) {
+//                                        if (response.isSuccessful) {
+//                                            response.body()?.let {
+//                                                saveResponseBodyAsPdf(
+//                                                    responseBody = it,
+//                                                    context = appContext,
+//                                                    fileName = file.filename,
+//                                                    viewModel = viewModel
+//                                                )
+//                                            }
+//                                        }
+//                                    } else {
+//                                        Log.d("MainFile", "MainFile: The response Body is null")
+//                                    }
+//                                }
+                                downloadAndConvertToPdf(
+                                    file.id,
+                                    file.filename,
+                                    appContext,
+                                    viewModel,
+                                    lifecycleOwner
+                                )
                             }
 
                             GradientButton2(
@@ -518,8 +536,105 @@ fun EllipsisText(text: String, maxLength: Int) {
     )
 }
 
+@OptIn(DelicateCoroutinesApi::class)
+fun downloadAndConvertToPdf(
+    id: String,
+    fileName: String,
+    context: Context,
+    viewModel: MainViewModel,
+    lifecycleOwner: androidx.lifecycle.LifecycleOwner
+) {
+    val url = "https://dbiiit.swoyam.engineer/download/$id"
+
+    GlobalScope.launch(Dispatchers.IO) {
+        val success = launchBrowserForUrl(url, context)
+
+        withContext(Dispatchers.Main) {
+            if (success) {
+                showToast(context, "URL opened in the browser")
+            } else {
+                showToast(context, "Failed to open URL in the browser")
+            }
+        }
+//        val outputFile = File(
+//            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+//            fileName
+//        )
+//
+//
+//
+//        val responseBody = downloadFile(url)
+//        if (responseBody != null) {
+//            val success = saveResponseBodyAsPdf(responseBody, outputFile)
+//
+//            withContext(Dispatchers.Main) {
+//                if (success) {
+//                    showToast(context, "File downloaded and converted to PDF successfully")
+//                } else {
+//                    showToast(context, "Failed to download or convert file to PDF")
+//                }
+//            }
+//        } else {
+//            withContext(Dispatchers.Main) {
+//                showToast(context, "Failed to download file")
+//            }
+//        }
+    }
+}
+
+private fun launchBrowserForUrl(url: String, context: Context): Boolean {
+    return try {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+        true
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
+}
+
+/*private fun downloadFile(url: String): ResponseBody? {
+    val client = OkHttpClient()
+    val request = Request.Builder().url(url).build()
+
+    return try {
+        val response = client.newCall(request).execute()
+        if (response.isSuccessful) {
+            response.body
+        } else {
+            null
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null
+    }
+}*/
+
+/*private fun saveResponseBodyAsPdf(responseBody: ResponseBody, outputFile: File): Boolean {
+    return try {
+        val inputStream = responseBody.byteStream()
+        val outputStream = FileOutputStream(outputFile)
+
+        val buffer = ByteArray(4096)
+        var bytesRead: Int
+        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+            outputStream.write(buffer, 0, bytesRead)
+        }
+
+        outputStream.flush()
+        outputStream.close()
+        inputStream.close()
+
+        true
+    } catch (e: IOException) {
+        e.printStackTrace()
+        false
+    }
+}*/
+
 //Download file and save it to Downloads folder
-fun saveResponseBodyAsPdf(
+/*fun saveResponseBodyAsPdf(
     responseBody: ResponseBody?,
     context: Context,
     fileName: String,
@@ -560,7 +675,7 @@ fun saveResponseBodyAsPdf(
         e.printStackTrace()
         showToast(context, "Error downloading file")
     }
-}
+}*/
 
 fun showToast(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
