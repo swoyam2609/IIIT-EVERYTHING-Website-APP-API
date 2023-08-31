@@ -8,6 +8,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 from pydantic import BaseModel
 from bson import ObjectId, encode
+import urllib.parse
+
+class Database:
+    def __init__(self, connection_string, db_name):
+        self.client = MongoClient(connection_string)
+        self.db = self.client.get_database(db_name)
 
 
 class Editor(BaseModel):
@@ -36,11 +42,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = MongoClient("mongodb://localhost:27017")
-db = client['iiiteverything']
-collection = db["savedFiles"]
-editors = db["editor"]
-admin = db["admin"]
+mongoDbString = "mongodb+srv://<username>:<password>@gdg-app.clsqnrb.mongodb.net/"
+
+# Escape the username and password using urllib.parse.quote_plus
+escaped_username = urllib.parse.quote_plus("swoyamsiddharth")
+escaped_password = urllib.parse.quote_plus("Somu@261765")
+mongoDbString = mongoDbString.replace("<username>", escaped_username).replace("<password>", escaped_password)
+
+database = Database(mongoDbString, "iiiteverything")
+
+collection = database.db["savedFiles"]
+editors = database.db["editor"]
+admin = database.db["admin"]
 
 
 # Uploading File function
