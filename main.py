@@ -42,11 +42,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-mongoDbString = "mongodb+srv://<username>:<password>@gdg-app.clsqnrb.mongodb.net/"
+mongoDbString = "mongodb+srv://<username>:<password>@iiiteverything.br6vt5b.mongodb.net/"
 
 # Escape the username and password using urllib.parse.quote_plus
-escaped_username = urllib.parse.quote_plus("swoyamsiddharth")
-escaped_password = urllib.parse.quote_plus("Somu@261765")
+escaped_username = urllib.parse.quote_plus("swoyam")
+escaped_password = urllib.parse.quote_plus("swoyam")
 mongoDbString = mongoDbString.replace("<username>", escaped_username).replace("<password>", escaped_password)
 
 database = Database(mongoDbString, "iiiteverything")
@@ -228,3 +228,6 @@ async def getsubjects():
 @app.get("/")
 async def root():
     return {"message": "Everything is working"}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host='0.0.0.0', port=3000)
